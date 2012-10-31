@@ -1,8 +1,9 @@
 /*******************************************************************
-Problem Set 3 Solution: Gold Code Correlation
+Problem Set 6 Solution: Gold Code Detection
 Author: Joshua Vasquez
-Date: October 13, 2012
+Date: October 31, 2012
 
+Time for completion: about 2.5 hours after some debugging!
     
 *******************************************************************/
 
@@ -15,6 +16,7 @@ const unsigned long delayTime = 250; // time beteen samples in [us]
 const byte numSamples = 31;
 const byte maxCorrelation = 31;
 const byte numGoldCodes = 8;
+
 /* Global Variables */
 
 int rawValues[numSamples];
@@ -35,7 +37,6 @@ const boolean GoldCodes[numGoldCodes][numSamples] =
 
 /*******************************************************************
 void setup()
-  
 *******************************************************************/
 void setup()
 {
@@ -46,6 +47,7 @@ void setup()
 
 
 /*******************************************************************
+The main loop:
 *******************************************************************/
 void loop()
 {
@@ -61,13 +63,14 @@ void loop()
     Serial.println(goldCode);
   }
   
-  
-  
 }
 
 
 
 /*******************************************************************
+void takeMeasurement()
+DESCRIPTION: sample the phototransistor 31 times every 250 [us] in 
+             a tight timing loop.
 *******************************************************************/
 void takeMeasurement()
 {
@@ -85,7 +88,7 @@ void takeMeasurement()
     };
     
     nextSampleTime = nextSampleTime + delayTime;  // increment the time
-    rawValues[i] = analogRead(PhotoTransistor);  // 1 is HIGH. 0 is LOW
+    rawValues[i] = analogRead(PhotoTransistor); 
   } 
 }
 
@@ -94,6 +97,10 @@ void takeMeasurement()
 void binarizeMeasurement()
 DESCRIPTION: convert the values in the rawValues array to either 1s
              or 0s, and store them to the cleanValues array.
+NOTE: assignment of 1 and 0 to a HIGH and LOW value is arbitrary. 
+      We could just as easily assign 0 and 1 to a HIGH and LOW
+      value.  The only difference in correlations will be the sign
+      (positive or negative).
 *******************************************************************/
 void binarizeMeasurement()
 {
@@ -116,6 +123,12 @@ void binarizeMeasurement()
 }
 
 /*******************************************************************
+int fullCorrelate()
+DESCRIPTION: This function compares all shifted versions of the
+              input sequence with each gold code.
+              For additional information, it also identifies
+              the correlation as either POSITIVE or NEGATIVE.  
+              These two cases correspond to each team.
 *******************************************************************/
 int fullCorrelate()
 {
@@ -126,14 +139,20 @@ int fullCorrelate()
    for (byte j=0;j<numSamples;j++)
    {
      correlation = correlate( cleanValues, GoldCodes[i]);
-     if (fabs(correlation) == maxCorrelation)
+     if (fabs(correlation) == maxCorrelation)  // this works fine
      //if (fabs(correlation) >= 22)
      {
-       Serial.print("shift: ");
-       Serial.println(j);
-       Serial.print("correlation: ");
-       Serial.println(correlation);
-
+       //Serial.print("shift: ");
+       //Serial.println(j);
+       //Serial.print("correlation: ");
+       //Serial.println(correlation);
+       
+       Serial.print("Correlation ");
+       if (correlation > 0) 
+       { Serial.println("color: POSITIVE");}
+       else 
+       { Serial.println("color: NEGATIVE");}
+       
        return (i + 1);  // the current gold code 
      }
      // else
@@ -169,6 +188,9 @@ int correlate ( boolean* inputArray, const boolean* GCode)
 
 
 /*******************************************************************
+void oneRightShift( boolean* inputArray)
+DESCRIPTION: this function right-shifts the inputArray's contents 
+              by one element.
 *******************************************************************/
 void oneRightShift( boolean* inputArray)
 {
