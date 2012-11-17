@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+  <head>
+    <title>WebSockets Hello World</title>
+    <meta charset="utf-8" />
+    <style type="text/css">
+      body {
+        text-align: center;
+        min-width: 500px;
+      }
+    </style>
+    <script src="http://code.jquery.com/jquery.min.js"></script>
+    <script>
+
+      var timeLeft = 120000
+      var started = false;
+
+      function updateDisplay() {
+        if (started) 
+          if (timeLeft > 0)
+            timeLeft -= 100;
+        var mins = Math.floor(timeLeft/(60*1000));
+        var secs = Math.floor( (timeLeft - (mins * 60 * 1000)) / 1000);
+        var ms = Math.floor( timeLeft - (mins*60*1000) -(secs*1000) );
+        $('#timer').find('.mins').text(mins);
+        $('#timer').find('.secs').text(secs );
+        $('#timer').find('.ms').text(ms/100 );
+      }
+
+
+      $(document).ready(function () {
+ 
+        var ws = new WebSocket("ws://localhost:8888/ws");
+        ws.onopen = function() {
+          console.log("connected");
+          ws.send("index connected!");
+        };
+
+        ws.onmessage = function (evt) {
+          if (evt.data == "go")
+            started = true;
+        };
+        setInterval(updateDisplay,100); 
+
+        $("#start").click(function() {
+          console.log("go!");
+          ws.send("go");
+        });
+      });
+    </script>
+  </head>
+ 
+  <body>
+    <div id="timer">
+      <span class="mins">2:</span>
+      <span class="secs">00:</span>
+      <span class="ms">00</span>
+      <button type="button" id="start">Start</button>
+    </div>
+    <div id="team1">
+      <span class="name">Team 1:</span>
+      <span class="score">42</span>
+    </div>
+    <div id="team2">
+      <span class="name">Team 2:</span>
+      <span class="score">42</span>
+    </div>
+
+  </body>
+</html>

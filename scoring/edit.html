@@ -1,0 +1,328 @@
+<!doctype html>
+<html>
+  <head>
+    <title>E11 Final Competition</title>
+    <meta charset="utf-8" />
+    <style type="text/css">
+      body {
+        text-align: center;
+        background: #D6D6D6;
+      }
+      #wrap {
+        float: left;
+        width: 100%;
+      }
+
+      #left {
+        float: left;
+        width: 400px;
+        margin-top: -150px;
+        display: inline;
+        overflow: hidden;
+      }
+
+      #right {
+        float: right;
+        width: 400px;
+        margin-top: -150px;
+        display: inline;
+      }
+
+      #middle {
+        font-size: 6em;
+        width: 350px;
+        height: 150px;
+      }
+
+      #buttons {
+
+        height: 100px;
+        margin-top: -85px;
+      }
+
+      #middle {
+        margin-right: auto;
+        margin-left: auto;
+      }
+
+      #logo {
+        font-size: 5em;
+      }
+
+      #team1 {
+        background: white;
+        border-radius: 15px;
+        padding: 0px;
+        width: 100%;
+      }
+      #team2 {
+        background: #30c900;
+        border-radius: 15px;
+        padding: 2px;
+      }
+      .name {
+        font-size: 1em;
+      }
+      .score {
+        font-size: 7em;
+      }
+      .teamName {
+        font-size: 3em;
+      }
+      .bonus {
+        background: red;
+        color: white;
+        margin-left: auto;
+        margin-right: auto;
+
+        font-size: 2em;
+        font-weight: bold;
+        width: 150px;
+        height: 35px;
+      }
+       
+      #board {
+        background: #bbbbbb;
+        border-radius: 15px;
+        width: 500px;
+        padding: 5px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 100px;
+      }
+
+      .beacon {
+        display: inline-block;
+        border-radius: 15px;
+        background: green;
+        width: 150px;
+        height: 35px;
+      }
+      .spacer {
+        display: inline-block;
+        width: 150px;
+      }
+      .clear {
+        clear: both
+      }
+    </style>
+    <script src="http://code.jquery.com/jquery.min.js"></script>
+    <script>
+
+      var timeLeft = 120000
+      var started = false;
+
+      function updateDisplay() {
+        if (started) {
+          if (timeLeft > 0)
+            timeLeft -= 100;
+          else
+            started = false;
+        }
+        var mins = Math.floor(timeLeft/(60*1000));
+        var secs = Math.floor( (timeLeft - (mins * 60 * 1000)) / 1000);
+        var ms = Math.floor( timeLeft - (mins*60*1000) -(secs*1000) );
+        $('#timer').find('.mins').text(mins+":");
+        if (secs != 0)
+          $('#timer').find('.secs').text(secs+":" );
+        else
+          $('#timer').find('.secs').text("00:" );
+        $('#timer').find('.ms').text(ms/100 );
+      }
+
+      function hideBonus(team) {
+        if(team == 0) {
+          $('#team1 .bonus').text("");
+          $('#team1 .bonus').css("background","white");
+          } else {
+          $('#team2 .bonus').text("");
+          $('#team2 .bonus').css("background","#30c900");
+        }
+      }
+
+      function showBonus(team) {
+        if(team == 0) {
+          $('#team1 .bonus').text("BONUS");
+          $('#team1 .bonus').css("background","red");
+          } else {
+          $('#team2 .bonus').text("BONUS");
+          $('#team2 .bonus').css("background","red");
+        }
+      }
+
+      function resetColors() {
+        $('#1').css("background","white");
+        $('#1').data("team","white");
+        $('#3').css("background","white");
+        $('#3').data("team","white");
+        $('#6').css("background","white");
+        $('#6').data("team","white");
+        $('#8').css("background","white");
+        $('#8').data("team","white");
+        $('#2').css("background","green");
+        $('#2').data("team","green");
+        $('#4').css("background","green");
+        $('#4').data("team","green");
+        $('#5').css("background","green");
+        $('#5').data("team","green");
+        $('#7').css("background","green");
+        $('#7').data("team","green");
+        $('#9').css("background","red");
+        $('#9').data("team","white");
+      }
+
+      function setWhiteScore(score) {
+        $('#team1 .score').text(score)
+      }
+      function setGreenScore(score) {
+        $('#team2 .score').text(score)
+      }
+
+
+      $(document).ready(function () {
+ 
+        var ws = new WebSocket("ws://localhost:8888/wsEdit");
+        ws.onopen = function() {
+          console.log("connected");
+          ws.send("edit connected!");
+        };
+
+        ws.onmessage = function (evt) {
+          console.log(evt.data.split(" "));
+          if (evt.data == "startmatch")
+            started = true;
+          else if (evt.data == "pause") {
+            started = false;
+          } else if (evt.data == "reset") {
+            timeLeft = 120000;
+            started = false;
+            resetColors();
+          } else if (evt.data.split(" ")[0] == "bonus") {
+            if (evt.data.split(" ")[1] == "white") {
+              hideBonus(1);
+              showBonus(0);
+            } else if (evt.data.split(" ")[1] == "green") {
+              hideBonus(0);
+              showBonus(1);
+            } else {
+              hideBonus(0);
+              hideBonus(1);
+            }
+          } else if (evt.data.split(" ")[0] == "scores") {
+            setWhiteScore(evt.data.split(" ")[1]);
+            setGreenScore(evt.data.split(" ")[2]);
+          }
+        };
+
+        setInterval(updateDisplay,100); 
+
+        $("#start").click(function() {
+          console.log("go!");
+          ws.send("startmatch");
+        });
+        $("#pause").click(function() {
+          console.log("pause!");
+          ws.send("endmatch");
+        });
+        $("#reset").click(function() {
+          console.log("reset!");
+          hideBonus(0);
+          hideBonus(1);
+          ws.send("reset");
+        });
+
+        $("#reset").click(function() {
+          console.log("reset!");
+          hideBonus(0);
+          hideBonus(1);
+          ws.send("reset");
+        });
+
+        $(".beacon").click(function() {
+          console.log("beacon click " + this.id);
+          if ($(this).data('team') == "green") {
+            $(this).data("team","white");
+            $(this).css("background","white");
+            ws.send("beacon " + this.id + " white");
+          }
+          else if ($(this).data('team') == "white") {
+            $(this).data("team","green");
+            $(this).css("background","green");
+            ws.send("beacon " + this.id + " green");
+          }
+        });
+        $(".bonus").click(function() {
+          if( $(this).parent().attr("id") == "team1" )
+            ws.send("bonus white");
+           else
+            ws.send("bonus green");
+        });
+
+      });
+    </script>
+  </head>
+ 
+  <body>
+  <div id="logo">
+    <img src="logo.png" height="75"/>
+    E11 Autonomous Vehicles
+  </div>
+  <div id="wrap">
+    <div id="middle">
+      <div id="timer">
+        <span class="mins">2:</span>
+        <span class="secs">00:</span>
+        <span class="ms">00</span>
+        <div id="buttons">
+          <button type="button" id="start">Start</button>
+          <button type="button" id="pause">Pause</button>
+          <button type="button" id="reset">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="left">
+      <div id="team1">
+        <div class="name">Team White</div>
+        <div class="score">42</div>
+        <div class="bonus">BONUS</div>
+        <div class="teamName">The number of wires is too darn high</div>
+      </div>
+    </div>
+    <div id="right">
+      <div id="team2">
+        <div class="name">Team Green</div>
+        <div class="score">42</div>
+        <div class="bonus">BONUS</div>
+        <div class="teamName">Riding on a pig</div>
+      </div>
+    </div>
+  </div>
+  <div class = "clear"/>
+  <div id = "board">
+    <div>
+      <div id = 8 class = "beacon"> 8 </div>
+      <div id = 9 class = "beacon"> 9 </div>
+      <div id = 7 class = "beacon"> 7 </div>
+    </div>
+    <div>
+      <span class = "spacer">  </span>
+         <div class = "hex"> 
+          <div id = 2 class = "beacon"> 2 </div>
+          <div id = 1 class = "beacon"> 1 </div>
+         </div>
+         <div class = "hex"> 
+          <div id = 3 class = "beacon"> 3 </div>
+          <div id = 4 class = "beacon"> 4 </div>
+         </div>
+      </span>
+      <span class = "spacer">  </span>
+    </div>
+    <div>
+      <div id = 6 class = "beacon"> 6 </div>
+      <span class = "spacer">  </span>
+      <div id = 5 class = "beacon"> 5 </div>
+    </div>
+  </div>
+  </body>
+</html>
