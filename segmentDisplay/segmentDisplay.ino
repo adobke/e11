@@ -100,12 +100,15 @@ void parseBuf()
       }  
       break;
     case score:
-      Serial.println("Update score");
-      if (bufIndex != 3)
+      if (bufIndex < 3)
         return;
-      Serial.println("Update score 2");
+      Serial.println("Update score");
       greenScore = buf[1];
       whiteScore = buf[2];
+      Serial.print("Green: ");
+      Serial.println(greenScore);
+      Serial.print("White: ");
+      Serial.println(whiteScore);
       break;
   } 
 }
@@ -115,7 +118,7 @@ void loop() {
   // Process serial
   if (Serial.available() > 0) {
     int in = Serial.read();
-    if (in == 0) {
+    if (in == 0x42) {
       parseBuf();
       bufIndex = 0;
     } else
