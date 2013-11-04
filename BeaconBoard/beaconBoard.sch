@@ -3600,6 +3600,8 @@ Standard 5-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <part name="JP2" library="SparkFun-Connectors" deviceset="M05" device="LOCK_LONGPADS"/>
 <part name="SUPPLY10" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY11" library="supply2" deviceset="GND" device=""/>
+<part name="V_OUT6" library="SparkFun-Aesthetics" deviceset="VCC" device=""/>
+<part name="R11" library="SparkFun-Resistors" deviceset="RESISTOR" device="PTH-1/4W" value="200"/>
 </parts>
 <sheets>
 <sheet>
@@ -3662,6 +3664,8 @@ Standard 5-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <instance part="JP2" gate="G$1" x="271.78" y="17.78" rot="R180"/>
 <instance part="SUPPLY10" gate="GND" x="264.16" y="7.62"/>
 <instance part="SUPPLY11" gate="GND" x="17.78" y="-22.86"/>
+<instance part="V_OUT6" gate="1" x="35.56" y="0"/>
+<instance part="R11" gate="G$1" x="25.4" y="-2.54" rot="R180"/>
 </instances>
 <busses>
 </busses>
@@ -3733,6 +3737,12 @@ Standard 5-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <wire x1="198.12" y1="114.3" x2="203.2" y2="114.3" width="0.1524" layer="91"/>
 <wire x1="198.12" y1="116.84" x2="198.12" y2="114.3" width="0.1524" layer="91"/>
 <junction x="198.12" y="114.3"/>
+</segment>
+<segment>
+<pinref part="R11" gate="G$1" pin="1"/>
+<pinref part="V_OUT6" gate="1" pin="VCC"/>
+<wire x1="30.48" y1="-2.54" x2="35.56" y2="-2.54" width="0.1524" layer="91"/>
+<wire x1="35.56" y1="-2.54" x2="35.56" y2="0" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -4055,6 +4065,9 @@ Standard 5-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <junction x="20.32" y="53.34"/>
 <wire x1="20.32" y1="58.42" x2="38.1" y2="58.42" width="0.1524" layer="91"/>
 <label x="38.1" y="58.42" size="1.778" layer="95"/>
+<pinref part="R11" gate="G$1" pin="2"/>
+<wire x1="20.32" y1="-2.54" x2="20.32" y2="7.62" width="0.1524" layer="91"/>
+<junction x="20.32" y="7.62"/>
 </segment>
 <segment>
 <pinref part="U$4" gate="G$1" pin="PC5/ADC5/SCL/PCINT13"/>
